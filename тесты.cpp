@@ -1,6 +1,7 @@
-﻿#include <iostream>
+#include <iostream>
 #include <fstream>
 #include <string>
+#include <iomanip>
 
 const int sizeDrpX = 20;
 const int sizeDrpY = 20;
@@ -14,21 +15,21 @@ void printDrp(int drp[sizeDrpX][sizeDrpY]) //начальная ДРП, из ф�
 		for (int j = 0; j < sizeDrpY; ++j)
 		{
 			if (drp[i][j] == 0)
-				std::cout << '_' << " ";
+				std::cout << std::setw(3) << '_' << " ";
 			else if (drp[i][j] == -2)
-				std::cout << '#' << " ";
+				std::cout << std::setw(3) << '#' << " ";
 			else if (drp[i][j] == -3)
-				std::cout << 'A' << " ";
+				std::cout << std::setw(3) << 'A' << " ";
 			else if (drp[i][j] == -4)
-				std::cout << 'B' << " ";
+				std::cout << std::setw(3) << 'B' << " ";
 			else
-				std::cout << drp[i][j] << " ";
+				std::cout << std::setw(3) << drp[i][j] << " ";
 		}
 		std::cout << "\n";
 	}
 }
 
-//функция вывода ДРП, но уже с расставленными точками и путем
+//перегруженная функция вывода ДРП, но уже с расставленными точками и путем
 void printDrp(int drp[sizeDrpX][sizeDrpY], int aX, int aY, int bX, int bY)
 {
 	int waveCount = 0; //счетчик волн
@@ -41,28 +42,54 @@ void printDrp(int drp[sizeDrpX][sizeDrpY], int aX, int aY, int bX, int bY)
 	{ 
 		hasChanged = false;
 		//перебираем все элементы ДРП
-		for (int i = 1; i < sizeDrpX; ++i) 
+		for (int i = 0; i < sizeDrpX; ++i) 
 		{
 			for (int j = 0; j < sizeDrpY; ++j) 
 			{
-				if (drp[i][j] != 0) 
-				{ // проверяем соседей для каждого ненулевого элемента
-					if (i + 1 < sizeDrpX && drp[i + 1][j] == 0) 
+				
+				if (drp[i][j] == -3 && waveCount == 0)
+				{ // проверяем соседей для точки А
+					if (i + 1 < sizeDrpX && drp[i + 1][j] == 0 && drp[i][j] != -2)
 					{
 						drp[i + 1][j] = waveCount + 1;
 						hasChanged = true;
 					}
-					if (j + 1 < sizeDrpY && drp[i][j + 1] == 0) 
+					if (j + 1 < sizeDrpY && drp[i][j + 1] == 0 && drp[i][j] != -2)
 					{
 						drp[i][j + 1] = waveCount + 1;
 						hasChanged = true;
 					}
-					if (i - 1 >= 0 && drp[i - 1][j] == 0) 
+					if (i - 1 > 0 && drp[i - 1][j] == 0 && drp[i][j] != -2)
 					{
 						drp[i - 1][j] = waveCount + 1;
 						hasChanged = true;
 					}
-					if (j - 1 >= 0 && drp[i][j - 1] == 0) 
+					if (j - 1 > 0 && drp[i][j - 1] == 0 && drp[i][j] != -2)
+					{
+						drp[i][j - 1] = waveCount + 1;
+						hasChanged = true;
+					}
+				}
+				
+				//проверяем остальые точки
+				if (drp[i][j] == waveCount && waveCount != 0)
+				{
+					if (i + 1 < sizeDrpX && drp[i + 1][j] == 0 && drp[i][j] != -2)
+					{
+						drp[i + 1][j] = waveCount + 1;
+						hasChanged = true;
+					}
+					if (j + 1 < sizeDrpY && drp[i][j + 1] == 0 && drp[i][j] != -2)
+					{
+						drp[i][j + 1] = waveCount + 1;
+						hasChanged = true;
+					}
+					if (i - 1 >= 0 && drp[i - 1][j] == 0 && drp[i][j] != -2)
+					{
+						drp[i - 1][j] = waveCount + 1;
+						hasChanged = true;
+					}
+					if (j - 1 >= 0 && drp[i][j - 1] == 0 && drp[i][j] != -2)
 					{
 						drp[i][j - 1] = waveCount + 1;
 						hasChanged = true;
@@ -74,7 +101,7 @@ void printDrp(int drp[sizeDrpX][sizeDrpY], int aX, int aY, int bX, int bY)
 		//инкрементируем волну
 		waveCount++;
 	}
-
+	
 	//печатаем конечную ДРП
 	std::cout<<std::endl;
 	printDrp(drp);
