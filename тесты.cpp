@@ -2,12 +2,19 @@
 #include <fstream>
 #include <string>
 #include <iomanip>
+#include <algorithm>
+#include <array>
+#include <windows.h>
+
+HANDLE hConsole;
 
 const int sizeDrpX = 20;
 const int sizeDrpY = 20;
 
 void printDrp(int drp[sizeDrpX][sizeDrpY]) //начальная ДРП, из файла
 {
+	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);//для смены цветов в консоли
+
 	std::cout << "'" << (char)95 << "'" << " - floor \n";
 	std::cout << "'" << (char)35 << "'" << " - wall\n\n";
 	for (int i = 0; i < sizeDrpX; ++i)
@@ -17,11 +24,24 @@ void printDrp(int drp[sizeDrpX][sizeDrpY]) //начальная ДРП, из ф�
 			if (drp[i][j] == 0)
 				std::cout << std::setw(3) << '_' << " ";
 			else if (drp[i][j] == -2)
+			{
+				SetConsoleTextAttribute(hConsole, 8);
 				std::cout << std::setw(3) << '#' << " ";
-			else if (drp[i][j] == -3)
+				SetConsoleTextAttribute(hConsole, 7);
+			}
+			else if (drp[i][j] == -3) 
+			{
+				SetConsoleTextAttribute(hConsole, 2);
 				std::cout << std::setw(3) << 'A' << " ";
-			else if (drp[i][j] == -4)
+				SetConsoleTextAttribute(hConsole, 7);
+
+			}
+			else if (drp[i][j] == -4) 
+			{
+				SetConsoleTextAttribute(hConsole, 4);
 				std::cout << std::setw(3) << 'B' << " ";
+				SetConsoleTextAttribute(hConsole, 7);
+			}
 			else
 				std::cout << std::setw(3) << drp[i][j] << " ";
 		}
@@ -33,20 +53,23 @@ void printDrp(int drp[sizeDrpX][sizeDrpY]) //начальная ДРП, из ф�
 void printDrp(int drp[sizeDrpX][sizeDrpY], int aX, int aY, int bX, int bY)
 {
 	int waveCount = 0; //счетчик волн
-	bool hasChanged = true; 
+	bool hasChanged = true;
 
 	drp[aX - 1][aY - 1] = -3; // Точка А имеет значение -3
 	drp[bX - 1][bY - 1] = -4; // Точка Б имеет значение -4
 
-	while (hasChanged) 
-	{ 
+	if (drp[aX - 2][aY - 1] == -4 || drp[aX][aY - 1] == -4 || drp[aX - 1][aY - 2] == -4 || drp[aX - 1][aY] == -4)
+		hasChanged = false;//перед началом распростанения волн фиксируем случай если точки находятся в упор друг к другу
+
+	while (hasChanged)
+	{
 		hasChanged = false;
 		//перебираем все элементы ДРП
-		for (int i = 0; i < sizeDrpX; ++i) 
+		for (int i = 0; i < sizeDrpX; ++i)
 		{
-			for (int j = 0; j < sizeDrpY; ++j) 
+			for (int j = 0; j < sizeDrpY; ++j)
 			{
-				
+
 				if (drp[i][j] == -3 && waveCount == 0)
 				{ // проверяем соседей для точки А
 					if (i + 1 < sizeDrpX && drp[i + 1][j] == 0 && drp[i][j] != -2)
@@ -70,7 +93,7 @@ void printDrp(int drp[sizeDrpX][sizeDrpY], int aX, int aY, int bX, int bY)
 						hasChanged = true;
 					}
 				}
-				
+
 				//проверяем остальые точки
 				if (drp[i][j] == waveCount && waveCount != 0)
 				{
@@ -95,17 +118,50 @@ void printDrp(int drp[sizeDrpX][sizeDrpY], int aX, int aY, int bX, int bY)
 						hasChanged = true;
 					}
 				}
+				if (drp[bX - 1][bY - 1] == -4) //проверка на момент, когда мы уже дошли до В, и нужно остановить распространение волн
+				{
+					if (bX < sizeDrpX && drp[bX][bY-1] == waveCount+1 && drp[bX][bY-1] != -2)
+						hasChanged = false;
+					if (bY < sizeDrpY && drp[bX-1][bY] == waveCount+1 && drp[bX-1][bY] != -2)
+						hasChanged = false;
+					if (bX >= 0 && drp[bX - 2][bY - 1] == waveCount+1 && drp[bX - 2][bY-1] != -2)
+						hasChanged = false;
+					if (bY >= 0 && drp[bX - 1][bY - 2] == waveCount+1 && drp[bX - 1][bY-2] != -2)
+						hasChanged = false;
+				}
 			}
 		}
 
 		//инкрементируем волну
 		waveCount++;
 	}
-	
+
 	//печатаем конечную ДРП
-	std::cout<<std::endl;
+	std::cout << std::endl;
 	printDrp(drp);
 
+	//рассчитываем расстояние от А до В и выводим длину пути
+	 int lenght = 1000;
+	//все 4 соседа точки В образуют массив:
+	std::array <int, 4> neighboursB = {drp[bX - 2][bY - 1], drp[bX - 1][bY - 2], drp[bX - 1][bY], drp[bX][bY - 1]};
+	for (const auto value : neighboursB)
+	{
+
+		if (value < lenght && value < 1000 && value > 0)
+			lenght = value+1;
+	}
+
+	if(drp[bX-2][bY-1] == -3 || drp[bX][bY - 1] == -3 || drp[bX - 1][bY - 2] == -3 || drp[bX - 1][bY] == -3)//проверка, вдруг А и В рядом
+		std::cout << "\nPoints are close to each other(Lenght path < 1)" << std::endl;
+	else if(lenght == -2 || lenght==1000)
+		std::cout << "\nCouldn't find a path" << std::endl;
+	else
+	{
+		if (lenght > waveCount)
+			std::cout << "\nPath lenght is " << lenght << " cells" << std::endl;
+		if (waveCount >= lenght) //чтобы не багалось
+			std::cout << "\nPath lenght is " << waveCount + 1 << " cells" << std::endl;
+	}
 }
 
 int coordsPoint(int pointCoord)
