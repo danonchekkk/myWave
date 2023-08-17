@@ -8,8 +8,8 @@
 
 HANDLE hConsole;
 
-const int sizeDrpX = 20;
-const int sizeDrpY = 20;
+static const int sizeDrpX = 20;
+static const int sizeDrpY = 20;
 
 void printDrp(int drp[sizeDrpX][sizeDrpY]) //начальная ДРП, из файла
 {
@@ -21,25 +21,31 @@ void printDrp(int drp[sizeDrpX][sizeDrpY]) //начальная ДРП, из ф�
 	{
 		for (int j = 0; j < sizeDrpY; ++j)
 		{
-			if (drp[i][j] == 0)
+			if (drp[i][j] == 0) //пустая клетка (пол)
 				std::cout << std::setw(3) << '_' << " ";
-			else if (drp[i][j] == -2)
+			else if (drp[i][j] == -2) //стена
 			{
 				SetConsoleTextAttribute(hConsole, 8);
 				std::cout << std::setw(3) << '#' << " ";
 				SetConsoleTextAttribute(hConsole, 7);
 			}
-			else if (drp[i][j] == -3) 
+			else if (drp[i][j] == -3) //точка А
 			{
 				SetConsoleTextAttribute(hConsole, 2);
 				std::cout << std::setw(3) << 'A' << " ";
 				SetConsoleTextAttribute(hConsole, 7);
 
 			}
-			else if (drp[i][j] == -4) 
+			else if (drp[i][j] == -4) //точка В
 			{
 				SetConsoleTextAttribute(hConsole, 4);
 				std::cout << std::setw(3) << 'B' << " ";
+				SetConsoleTextAttribute(hConsole, 7);
+			}
+			else if (drp[i][j] == -5)//дорожка обратного пути
+			{
+				SetConsoleTextAttribute(hConsole, 8);
+				std::cout << std::setw(3) << '%' << " ";
 				SetConsoleTextAttribute(hConsole, 7);
 			}
 			else
@@ -178,6 +184,35 @@ int coordsPoint(int pointCoord)
 	return pointCoord;
 }
 
+//функция выводы конечного пути
+int printPath(int drp[sizeDrpX][sizeDrpY], int aX, int aY, int bX, int bY)
+{
+	std::cout << "\nWould you like to see the completed path?\n 1-yes, 2-no\n";
+
+	int choose=0;
+	std::cin >> choose;
+	while (!std::cin.good() || (choose != 1 && choose != 2))
+	{
+		std::cout << "AGAIN '1' or '2' ";
+		std::cin.clear();
+		std::cin.ignore(1024, '\n');
+		std::cin >> choose;
+	}
+
+	switch (choose)
+	{
+	case 1:
+		
+		
+
+		printDrp(drp);
+		break;
+	case 2:
+		return 0;
+	}
+
+}
+
 int main(int argc, char* argv[])
 {				
 	//инициализация самой ДРП
@@ -245,6 +280,7 @@ int main(int argc, char* argv[])
 
 	//вывод дрп с точками А и В
 	printDrp(drp, aX, aY, bX, bY);
-	
+	printPath(drp, aX, aY, bX, bY);
+
 	return 0;
 }
