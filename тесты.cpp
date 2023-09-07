@@ -5,13 +5,14 @@
 #include <algorithm>
 #include <array>
 #include <windows.h>
+//если все сломается зайди на гитхаб
 
 HANDLE hConsole;
 
-static const int sizeDrpX = 20;
-static const int sizeDrpY = 20;
+const int sizeDrpX = 20;
+const int sizeDrpY = 20;
 
-void printDrp(int drp[sizeDrpX][sizeDrpY]) //начальная ДРП, из файла
+void printDrp(int drp[sizeDrpX][sizeDrpY]) 
 {
 	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);//для смены цветов в консоли
 
@@ -21,35 +22,40 @@ void printDrp(int drp[sizeDrpX][sizeDrpY]) //начальная ДРП, из ф�
 	{
 		for (int j = 0; j < sizeDrpY; ++j)
 		{
-			if (drp[i][j] == 0) //пустая клетка (пол)
-				std::cout << std::setw(3) << '_' << " ";
-			else if (drp[i][j] == -2) //стена
+			switch (drp[i][j])
 			{
-				SetConsoleTextAttribute(hConsole, 8);
-				std::cout << std::setw(3) << '#' << " ";
-				SetConsoleTextAttribute(hConsole, 7);
-			}
-			else if (drp[i][j] == -3) //точка А
-			{
-				SetConsoleTextAttribute(hConsole, 2);
-				std::cout << std::setw(3) << 'A' << " ";
-				SetConsoleTextAttribute(hConsole, 7);
+			case 0: //пустая клетка (пол)
+					std::cout << std::setw(3) << '_' << " ";
+					break;
 
+			case -2: //стена
+					SetConsoleTextAttribute(hConsole, 8);
+					std::cout << std::setw(3) << '#' << " ";
+					SetConsoleTextAttribute(hConsole, 7);
+					break;
+				
+			case -3: //точка А
+					SetConsoleTextAttribute(hConsole, 2);
+					std::cout << std::setw(3) << 'A' << " ";
+					SetConsoleTextAttribute(hConsole, 7);
+					break;
+
+			case -4: //точка В
+					SetConsoleTextAttribute(hConsole, 4);
+					std::cout << std::setw(3) << 'B' << " ";
+					SetConsoleTextAttribute(hConsole, 7);
+					break;
+			
+			case -5://дорожка обратного пути
+					SetConsoleTextAttribute(hConsole, 8);
+					std::cout << std::setw(3) << '%' << " ";
+					SetConsoleTextAttribute(hConsole, 7);
+					break;
+				
+			default:
+					std::cout << std::setw(3) << drp[i][j] << " ";
+					break;
 			}
-			else if (drp[i][j] == -4) //точка В
-			{
-				SetConsoleTextAttribute(hConsole, 4);
-				std::cout << std::setw(3) << 'B' << " ";
-				SetConsoleTextAttribute(hConsole, 7);
-			}
-			else if (drp[i][j] == -5)//дорожка обратного пути
-			{
-				SetConsoleTextAttribute(hConsole, 8);
-				std::cout << std::setw(3) << '%' << " ";
-				SetConsoleTextAttribute(hConsole, 7);
-			}
-			else
-				std::cout << std::setw(3) << drp[i][j] << " ";
 		}
 		std::cout << "\n";
 	}
@@ -203,7 +209,7 @@ int printPath(int drp[sizeDrpX][sizeDrpY], int aX, int aY, int bX, int bY)
 	{
 	case 1:
 		
-		
+		//здесь будет алгоритм проставления маршрута
 
 		printDrp(drp);
 		break;
@@ -242,8 +248,7 @@ int main(int argc, char* argv[])
 			}
 		}
 	}
-
-	file.close();
+	file.close();//все считали и закрыли
 
 	//вывод дрп
 	printDrp(drp);
