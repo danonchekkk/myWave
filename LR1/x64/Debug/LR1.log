@@ -1,0 +1,4 @@
+﻿  LR1.cpp
+C:\Users\Asus\Desktop\САПРЫ\LR1\LR1.cpp(185): warning C4715: changeDrp: значение возвращается не при всех путях выполнения
+C:\Users\Asus\Desktop\САПРЫ\LR1\LR1.cpp(324): warning C4715: printPath: значение возвращается не при всех путях выполнения
+  LR1.vcxproj -> C:\Users\Asus\Desktop\САПРЫ\LR1\x64\Debug\LR1.exe
